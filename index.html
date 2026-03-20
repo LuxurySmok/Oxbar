@@ -613,7 +613,7 @@
             <li><a href="https://modulescene.github.io/Luxury-NastyJuice/">Nasty PX15K</a></li>
             <li><a href="https://modulescene.github.io/Luxury-Oxbar/">OXBAR</a></li>
             <li><a href="https://modulescene.github.io/Luxury-Voopo/">VOPOO</a></li>
-            <li><a href="https://modulescene.github.io/Luxury-STLTH/">STLH</a></li>
+            <li><a href="https://modulescene.github.io/Luxury-STLTH/">STLTH</a></li>
         </ul>
     </nav>
     
@@ -641,7 +641,7 @@
                     <div class="cartridge-option" onclick="selectCartridge('35k')" id="cartridge-35k">
                         <div class="name">Cartucho 35K</div>
                         <div class="puffs">~35,000 Puffs</div>
-                        <div class="price">S/.149.99</div>
+                        <div class="price">S/.150.00</div>
                     </div>
                 </div>
                 
@@ -653,7 +653,7 @@
                     </div>
                 </div>
                 
-                <p class="description">Marca global reconocida por sabores intensos y diseño ultra-moderno con pantalla 3D. <strong>El precio incluye 1 sabor. Cada sabor adicional cuesta S/.68.00</strong>.</p>
+                <p class="description" id="descriptionText">Marca global reconocida por sabores intensos y diseño ultra-moderno con pantalla 3D. <strong>El precio incluye 1 sabor. Cada sabor adicional cuesta S/.68.00</strong>.</p>
                 
                 <!-- Especificaciones -->
                 <div class="specs-section">
@@ -686,7 +686,7 @@
             
             <!-- FLAVORS SECTION - AL FINAL (OCUPA AMBAS COLUMNAS) -->
             <div class="flavors-section">
-                <h3 id="flavorsTitle">🎨 Sabores 25K (1 incluido + S/.68 c/u adicional)</h3>
+                <h3 id="flavorsTitle">🎨 Sabores 25K (1 incluido + S/.65 c/u adicional)</h3>
                 <div class="flavors-grid" id="flavorsGrid"></div>
                 <div class="selected-count" id="selectedCount">Sabores seleccionados: 0</div>
             </div>
@@ -740,25 +740,33 @@
         let selectedFlavors = [];
         let cart = [];
         let selectedCartridge = '25k';
-        const PRICE_25K = 129.99;
-        const PRICE_35K = 149.99;
-        const ADDITIONAL_FLAVOR_PRICE = 68.00;  // CAMBIADO A 68
+        
+        // PRECIOS POR CARTUCHO: base (1 sabor incluido) y adicional
+        const PRICING = { 
+            '25k': { base: 129.99, additional: 65.00, label: '25K' }, 
+            '35k': { base: 150.00, additional: 79.00, label: '35K' }
+        };
+        
+        const PUFFS = { '25k': '25,000', '35k': '35,000' };
 
         // SELECCIONAR CARTUCHO
         function selectCartridge(type) {
             selectedCartridge = type;
+            const pricing = PRICING[type];
             
             // Actualizar UI del selector
             document.getElementById('cartridge-25k').classList.toggle('selected', type === '25k');
             document.getElementById('cartridge-35k').classList.toggle('selected', type === '35k');
             
             // Actualizar especificaciones
-            document.getElementById('puffsValue').textContent = type === '25k' ? '25,000 Puffs' : '35,000 Puffs';
+            document.getElementById('puffsValue').textContent = PUFFS[type];
             
-            // Actualizar título de sabores
+            // Actualizar título de sabores y descripción
             document.getElementById('flavorsTitle').textContent = 
-                type === '25k' ? '🎨 Sabores 25K (1 incluido + S/.68 c/u adicional)' : 
-                '🎨 Sabores 35K (1 incluido + S/.68 c/u adicional)';
+                `🎨 Sabores ${pricing.label} (1 incluido + S/.${pricing.additional.toFixed(2)} c/u adicional)`;
+            
+            document.getElementById('descriptionText').innerHTML = 
+                `Marca global reconocida por sabores intensos y diseño ultra-moderno con pantalla 3D. <strong>El precio incluye 1 sabor. Cada sabor adicional cuesta S/.${pricing.additional.toFixed(2)}</strong>.`;
             
             // Resetear selección de sabores
             selectedFlavors = [];
@@ -773,17 +781,17 @@
 
         // CALCULAR PRECIO TOTAL
         function calculateTotal() {
-            const basePrice = selectedCartridge === '25k' ? PRICE_25K : PRICE_35K;
+            const pricing = PRICING[selectedCartridge];
             const additionalFlavors = Math.max(0, selectedFlavors.length - 1);
-            return basePrice + (additionalFlavors * ADDITIONAL_FLAVOR_PRICE);
+            return pricing.base + (additionalFlavors * pricing.additional);
         }
 
         // ACTUALIZAR PRECIO EN PANTALLA
         function updatePriceDisplay() {
             const total = calculateTotal();
-            const basePrice = selectedCartridge === '25k' ? PRICE_25K : PRICE_35K;
+            const pricing = PRICING[selectedCartridge];
             const additionalFlavors = Math.max(0, selectedFlavors.length - 1);
-            const additionalCost = additionalFlavors * ADDITIONAL_FLAVOR_PRICE;
+            const additionalCost = additionalFlavors * pricing.additional;
             
             document.getElementById('dynamicPrice').textContent = `S/.${total.toFixed(2)}`;
             
@@ -794,7 +802,6 @@
                 document.getElementById('flavorsCost').textContent = '';
             }
             
-            // Actualizar info en el display de sabores
             const flavorPriceInfo = document.getElementById('flavorPriceInfo');
             if (additionalFlavors > 0) {
                 flavorPriceInfo.textContent = `+ S/.${additionalCost.toFixed(2)} por ${additionalFlavors} sabor(es) adicional(es)`;
@@ -810,7 +817,7 @@
             const grid = document.getElementById('flavorsGrid');
             grid.innerHTML = flavors.map((flavor, index) => `
                 <div class="flavor-item" onclick="toggleFlavor(${index})" id="flavor-${index}" title="${flavor.name}">
-                    <img src="${flavor.image.trim()}" alt="${flavor.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2780%27 height=%2780%27%3E%3Crect fill=%27%23333%27 width=%2780%27 height=%2780%27/%3E%3Ctext fill=%27%23d4af37%27 font-family=%27Arial%27 font-size=%2710%27 x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dy=%27.3em%27%3ENo Image%3C/text%3E%3C/svg%3E'">
+                    <img src="${flavor.image.trim()}" alt="${flavor.name}" onerror="this.src='image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2780%27 height=%2780%27%3E%3Crect fill=%27%23333%27 width=%2780%27 height=%2780%27/%3E%3Ctext fill=%27%23d4af37%27 font-family=%27Arial%27 font-size=%2710%27 x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dy=%27.3em%27%3ENo Image%3C/text%3E%3C/svg%3E'">
                     <div class="flavor-name">${flavor.name}</div>
                     <div class="checkmark">✓</div>
                 </div>
@@ -863,13 +870,11 @@
         // REMOVE FLAVOR
         function removeFlavor(flavorName) {
             selectedFlavors = selectedFlavors.filter(f => f !== flavorName);
-            
             const flavors = selectedCartridge === '25k' ? flavors25k : flavors35k;
             const index = flavors.findIndex(f => f.name === flavorName);
             if (index !== -1) {
                 document.getElementById(`flavor-${index}`).classList.remove('selected');
             }
-            
             updateSelectedCount();
             updateSelectedFlavorsDisplay();
             updatePriceDisplay();
@@ -882,17 +887,18 @@
                 return;
             }
             
+            const pricing = PRICING[selectedCartridge];
             const total = calculateTotal();
-            const basePrice = selectedCartridge === '25k' ? PRICE_25K : PRICE_35K;
             const additionalFlavors = Math.max(0, selectedFlavors.length - 1);
-            const additionalCost = additionalFlavors * ADDITIONAL_FLAVOR_PRICE;
+            const additionalCost = additionalFlavors * pricing.additional;
             
             const cartItem = {
                 id: Date.now(),
                 product: 'OXBAR',
-                cartridge: selectedCartridge === '25k' ? '25K Puffs' : '35K Puffs',
+                cartridge: `${PUFFS[selectedCartridge]} Puffs`,
                 flavors: [...selectedFlavors],
-                basePrice: basePrice,
+                basePrice: pricing.base,
+                additionalPrice: pricing.additional,
                 additionalFlavors: additionalFlavors,
                 additionalCost: additionalCost,
                 total: total
@@ -901,7 +907,6 @@
             cart.push(cartItem);
             updateCartCount();
             
-            // Clear selection
             selectedFlavors = [];
             document.querySelectorAll('.flavor-item').forEach(item => item.classList.remove('selected'));
             updateSelectedCount();
@@ -940,7 +945,7 @@
                 <div class="cart-item">
                     <div class="cart-item-name">${item.product} (${item.cartridge})</div>
                     <div class="cart-item-flavors"><strong>Sabores:</strong> ${item.flavors.join(', ')}</div>
-                    <div class="cart-item-breakdown">Base (1 sabor): S/.${item.basePrice.toFixed(2)}${item.additionalFlavors > 0 ? ` | +${item.additionalFlavors} adicionales: S/.${item.additionalCost.toFixed(2)}` : ''}</div>
+                    <div class="cart-item-breakdown">Base (1 sabor): S/.${item.basePrice.toFixed(2)}${item.additionalFlavors > 0 ? ` | +${item.additionalFlavors} adicionales × S/.${item.additionalPrice.toFixed(2)}: S/.${item.additionalCost.toFixed(2)}` : ''}</div>
                     <div class="cart-item-price">Total: S/.${item.total.toFixed(2)}</div>
                     <button onclick="removeFromCart(${index})" style="margin-top: 0.5rem; background: #ff4444; color: white; border: none; padding: 0.4rem 1rem; border-radius: 5px; cursor: pointer; font-weight: 600;">Eliminar</button>
                 </div>
@@ -983,7 +988,7 @@
                 message += `   Sabores: ${item.flavors.join(', ')}\n`;
                 message += `   Base (1 sabor incluido): S/.${item.basePrice.toFixed(2)}\n`;
                 if (item.additionalFlavors > 0) {
-                    message += `   +${item.additionalFlavors} sabores adicionales × S/.68: S/.${item.additionalCost.toFixed(2)}\n`;
+                    message += `   +${item.additionalFlavors} sabores adicionales × S/.${item.additionalPrice.toFixed(2)}: S/.${item.additionalCost.toFixed(2)}\n`;
                 }
                 message += `   *Subtotal: S/.${item.total.toFixed(2)}*\n\n`;
                 total += item.total;
@@ -996,47 +1001,44 @@
             message += 'Dirección: \n';
             message += 'Teléfono: \n';
             
-            const phone = '51999999999'; // CAMBIA ESTO POR TU NÚMERO
+            const phone = '51999999999';
             const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
             window.open(url, '_blank');
         }
 
-        // CONSULT WHATSAPP (for current selection)
+        // CONSULT WHATSAPP
         function consultWhatsApp() {
             if (selectedFlavors.length === 0) {
                 alert('Por favor, selecciona al menos un sabor');
                 return;
             }
             
+            const pricing = PRICING[selectedCartridge];
             const total = calculateTotal();
-            const basePrice = selectedCartridge === '25k' ? PRICE_25K : PRICE_35K;
             const additionalFlavors = Math.max(0, selectedFlavors.length - 1);
-            const additionalCost = additionalFlavors * ADDITIONAL_FLAVOR_PRICE;
+            const additionalCost = additionalFlavors * pricing.additional;
             
             let message = '👋 *CONSULTA - OXBAR*\n\n';
-            message += `Me interesa el OXBAR (${selectedCartridge === '25k' ? '25K Puffs' : '35K Puffs'}) con los siguientes sabores:\n\n`;
+            message += `Me interesa el OXBAR (${PUFFS[selectedCartridge]} Puffs) con los siguientes sabores:\n\n`;
             selectedFlavors.forEach((flavor, index) => {
                 message += `${index + 1}. ${flavor}\n`;
             });
             message += `\n━━━━━━━━━━━━━━━━\n`;
             message += `💰 *Desglose del precio:*\n`;
-            message += `Base (1 sabor incluido): S/.${basePrice.toFixed(2)}\n`;
+            message += `Base (1 sabor incluido): S/.${pricing.base.toFixed(2)}\n`;
             if (additionalFlavors > 0) {
-                message += `${additionalFlavors} sabores adicionales × S/.68: S/.${additionalCost.toFixed(2)}\n`;
+                message += `${additionalFlavors} sabores adicionales × S/.${pricing.additional.toFixed(2)}: S/.${additionalCost.toFixed(2)}\n`;
             }
             message += `\n*TOTAL: S/.${total.toFixed(2)}*\n\n`;
             message += '¿Me puede brindar más información?';
             
-            const phone = '51999999999'; // CAMBIA ESTO POR TU NÚMERO
+            const phone = '51999999999';
             const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
             window.open(url, '_blank');
         }
 
-        // Close modal when clicking outside
         document.getElementById('cartModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                toggleCart();
-            }
+            if (e.target === this) toggleCart();
         });
 
         // Initialize
